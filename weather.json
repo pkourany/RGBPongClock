@@ -1,0 +1,16 @@
+{
+"event": "weather_hook",
+"url": "http://api.openweathermap.org/data/2.5/forecast/daily",
+"requestType": "POST",
+"headers": null,
+"query": {
+	"q": "Ottawa,ON",
+	"mode": "json",
+	"units": "metric",
+	"cnt": 7
+	},
+"responseTemplate": "{{#list}}{{temp.day}}{{#weather}}~{{id}}~{{/weather}}{{/list}}",
+"json": null,
+"auth": null,
+"mydevices": true
+}
