@@ -8,8 +8,11 @@ Inspired by, and shamelessly derived from
 https://123led.wordpress.com/about/
 
 Videos of the clock in action:
+
 https://vine.co/v/hwML6OJrBPw
+
 https://vine.co/v/hgKWh1KzEU0
+
 https://vine.co/v/hgKz5V0jrFn
 
 Adapted for Spark Core by Paul Kourany, April 2015
@@ -75,20 +78,20 @@ The webhook file is provided (weather.json)
 CONFIGURE HOOK
 --------------
 The RGBPongClock.ino file contains a #define HOOK_NAME that defines the "event name" of
-the webhook.  The name defined after the "hook-response/" part must also match the
-#define HOOK_PUB and the "event" defined in the webhook.  In the example, the event
-is name "weather_hook".
+the webhook.  The name defined after the ```hook-response/``` part must also match the
+```#define HOOK_PUB``` and the event defined in the webhook.  In the example, the event
+is named ```weather_hook```.
 
 In order to get the weather for your area, you will need to change the "q" and "units"
 query parameters to match your city and temperature units.  For Fahrenheit, me "units"
 parameter line can be removed entirely.
 
-The JSON parsing template is defined by "responseTemplate" following the Mustache
+The JSON parsing template is defined by ```responseTemplate``` following the Mustache
 stateless query format.
 
 DON'T FORGET to create the webhook using Spark CLI:
 
-  spark webhook create weather.json
+```  spark webhook create weather.json```
 
   
 OTHER LIBRARIES
