@@ -98,7 +98,8 @@ OTHER LIBRARIES
 ---------------
 
 RGBPongClock makes use of the following libraries:
-
+```
   RGBMatrixPanel (including SparkIntervalTimer)
   Adafruit_GFX library
   fix_fft
+```
