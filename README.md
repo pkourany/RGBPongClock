@@ -16,7 +16,6 @@ https://vine.co/v/hgKWh1KzEU0
 https://vine.co/v/hgKz5V0jrFn
 
 Adapted for Spark Core by Paul Kourany, April 2015
-Trimmed functions (birthdays, weather, etc) to fit code in Core flash and RAM
 
 Spark Core from here:
 https://www.spark.io/
