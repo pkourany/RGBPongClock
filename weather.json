@@ -4,13 +4,16 @@
 "requestType": "POST",
 "headers": null,
 "query": {
-	"q": "Ottawa,ON",
+	"q": "{{mycity}}",
 	"mode": "json",
-	"units": "metric",
-	"cnt": 7
+	"units": "{{units}}",
+	"cnt": 7,
+	"appid": "{{apikey}}"
 	},
 "responseTemplate": "{{#list}}{{temp.day}}{{#weather}}~{{id}}~{{/weather}}{{/list}}",
 "json": null,
 "auth": null,
+"noDefaults": true,
+"devideid": null,
 "mydevices": true
 }
