@@ -112,10 +112,10 @@ int powerPillEaten = 0;
 
 
 /***** Weather webhook definitions *****/
-#define HOOK_RESP		"hook-response/pmk_w3"
-#define HOOK_PUB		"pmk_w3"
+#define HOOK_RESP		"hook-response/weather_hook"
+#define HOOK_PUB		"weather_hook"
 #define DEFAULT_CITY	"\"mycity\":\"Ottawa,ON\""	// Change to desired default city,state
-#define API_KEY			"\"apikey\":\"62810bbd5419f1ff67f8f61588833bf6\""
+#define API_KEY			"\"apikey\":\"yourkeyhere\""
 #define UNITS			"\"units\":\"metric\""		// Change to "imperial" for farenheit units
 /***************************************/
 
