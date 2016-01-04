@@ -110,6 +110,30 @@ int powerPillEaten = 0;
               
 /****************************************/
 
+/********* USING SPECIAL MESSAGES **********/
+
+#define USING_SPECIAL_MESSAGES
+
+#ifdef USING_SPECIAL_MESSAGES
+
+struct SpecialDays {
+  int month, day;
+  char* message;
+};
+
+const SpecialDays ourHolidays[] = {  //keep message to < 40 chars
+  { 1, 1, "HAPPY NEW YEAR"},
+  { 2, 14, "HAPPY ST PATRICKS DAY"},
+  { 4, 1, "HAPPY BIRTHDAY TOM"},
+  { 7, 4, "HAPPY 4TH OF JULY"},
+  { 7, 15, "HAPPY ANNIVERSARY"},
+  { 8, 12, "HAPPY BIRTHDAY GRAMPA"},
+  { 9, 26, "HAPPY BIRTHDAY CHASE AND CHANDLER"},
+  {10, 31, "HAPPY HALLOWEEN"},
+  {11, 1, "HAPPY BIRTHDAY PATCHES"},
+  {12, 25, "MERRY CHRISTMAS"}
+};
+#endif
 
 /***** Weather webhook definitions *****/
 #define HOOK_RESP		"hook-response/weather_hook"
@@ -2374,7 +2398,11 @@ void plasma()
 void marquee()
 {
 	char topLine[40] = {""};
-	char botmLine[40] = "BOTTOM LINE GOES HERE";
+#ifdef USING_SPECIAL_MESSAGES
+  	char* botmLine = getMessageOfTheDay();
+#else
+  	char botmLine[40] = "INSERT YOUR SPECIAL MESSAGE HERE";
+#endif
 	String tFull;
 	
 	//for (int show = 0; show < SHOWCLOCK ; show++) {
@@ -2405,6 +2433,20 @@ void marquee()
 		Spark.process();
 	}
 }
+
+#ifdef USING_SPECIAL_MESSAGES
+
+char* getMessageOfTheDay()
+{
+  for (int i = 0; i < sizeof(ourHolidays) / sizeof(ourHolidays[0]); i++)
+  {
+    if (ourHolidays[i].month == Time.month() && ourHolidays[i].day == Time.day())
+      return ourHolidays[i].message;
+  }
+  return "  WELCOME TO PONG CLOCK";
+}
+
+#endif
 
 
 
