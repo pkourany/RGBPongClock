@@ -91,14 +91,14 @@ as required (city, state)
 
 `#define UNITS`	define metric or imperial (US) units
 
-Sample #defines:
-#define HOOK_RESP		"hook-response/uniqueHookName"
-#define HOOK_PUB		"uniqueHookName"
-#define DEFAULT_CITY	"\"mycity\":\"Ottawa,ON\""	// Change to desired default city,state
-#define API_KEY			"\"apikey\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxx\""  //your key instead of x's
-#define UNITS			"\"units\":\"metric\""		// Change to "imperial" for farenheit units
-
-
+Sample defines:
+```
+ #define HOOK_RESP		"hook-response/uniqueHookName"
+ #define HOOK_PUB		"uniqueHookName"
+ #define DEFAULT_CITY	"\"mycity\":\"Ottawa,ON\""	// Change to desired default city,state
+ #define API_KEY		"\"apikey\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxx\""  //your key instead of x's
+ #define UNITS			"\"units\":\"metric\""		// Change to "imperial" for farenheit units
+```
 NOTE: openWeatherMap now requires an API KEY to be specified.  This key is available on
 their site and is free depending on usage.
 
