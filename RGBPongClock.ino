@@ -241,7 +241,16 @@ float       angle1   =  0.0, angle2   =  0.0, angle3   =   0.0, angle4   =   0.0
 long        hueShift =  0;
 /*******************************************/
 
+/*************** Night Mode ****************/
+struct TimerObject{
+  int hour, minute;
+};
 
+TimerObject clock_on  = { 7, 0};  //daytime mode start time
+TimerObject clock_off = {20, 0};  //night time mode start time
+/*******************************************/
+
+int Power_Mode = 1;  
 
 /************ PROTOTYPES **************/
 int setMode(String command);
@@ -272,6 +281,9 @@ int calc_font_displacement(uint8_t font_size);
 void spectrumDisplay();
 void plasma();
 void marquee();
+void nitelite();
+int timerEvaluate(const struct TimerObject on_time, const struct TimerObject off_time, const unsigned int currentTime);
+time_t tmConvert_t(int YYYY, byte MM, byte DD, byte hh, byte mm, byte ss);
 /*************************************/
 
 
@@ -345,67 +357,80 @@ void setup() {
 }
 
 
-void loop(){
+void loop()
+{
+  int Power_Mode = timerEvaluate(clock_on, clock_off, Time.now());  // comment out to skip night time mode
 
-	// Add wifi/cloud connection retry code here
+  if (Power_Mode == 1)
+  {
+    // Add wifi/cloud connection retry code here
+    // !!!  Add code for re-syncing time every 24 hrs  !!!
+    if ((millis() - updateCTime) > (24UL * 60UL * 60UL * 1000UL)) {
+      Spark.syncTime();
+      updateCTime = millis();
+    }
 
-	// !!!  Add code for re-syncing time every 24 hrs  !!!
-	if ((millis() - updateCTime) > (24UL * 60UL * 60UL * 1000UL)) {
-		Spark.syncTime();
-		updateCTime = millis();
-	}
-	
-	
-	if (millis() - modeSwitch > 300000UL) {	//Switch modes every 5 mins
-		clock_mode++;
-		mode_changed = 1;
-		modeSwitch = millis();
-		if (clock_mode > MAX_CLOCK_MODE-1)
-			clock_mode = 0;
-		DEBUGp("Switch mode to ");
-		DEBUGpln(clock_mode);
-	}
-	
-	DEBUGp("in loop ");
-	DEBUGpln(millis());
-	//reset clock type clock_mode
-	switch (clock_mode){
-	case 0: 
-		normal_clock(); 
-		break; 
-	case 1: 
-		pong(); 
-		break;
-	case 2: 
-		word_clock(); 
-		break;
-	case 3: 
-		jumble(); 
-		break; 
-	case 4: 
-		spectrumDisplay();
-		break;
-	case 5: 
-		plasma();
-		break;
-	case 6: 
-		marquee();
-		break;
-	default:
-		normal_clock();
-		break;
-	}
+    if (millis() - modeSwitch > 120000UL) {	//Switch modes every 5 mins
+      clock_mode++;
+      mode_changed = 1;
+      modeSwitch = millis();
+      if (clock_mode > MAX_CLOCK_MODE - 1)
+        clock_mode = 0;
+      DEBUGp("Switch mode to ");
+      DEBUGpln(clock_mode);
+    }
 
-	//if the mode hasn't changed, show the date
-	pacClear();
-	if (mode_changed == 0) { 
-		display_date(); 
-		pacClear();
-	}
-	else {
-		//the mode has changed, so don't bother showing the date, just go to the new mode.
-		mode_changed = 0; //reset mdoe flag.
-	}
+    DEBUGp("in loop ");
+    DEBUGpln(millis());
+    //reset clock type clock_mode
+    switch (clock_mode) {
+      case 0:
+        normal_clock();
+        break;
+      case 1:
+        pong();
+        break;
+      case 2:
+        word_clock();
+        break;
+      case 3:
+        jumble();
+        break;
+      case 4:
+        spectrumDisplay();
+        break;
+      case 5:
+        plasma();
+        break;
+      case 6:
+        marquee();
+        break;
+      default:
+        normal_clock();
+        break;
+    }
+
+    //if the mode hasn't changed, show the date
+    pacClear();
+    if (mode_changed == 0) {
+      display_date();
+      pacClear();
+    }
+    else {
+      //the mode has changed, so don't bother showing the date, just go to the new mode.
+      mode_changed = 0; //reset mdoe flag.
+    }
+  }
+  else
+  {
+    if(mode_changed == 1)
+    {
+      matrix.fillScreen(0);
+      matrix.swapBuffers(false);
+      mode_changed = 0;
+    }
+    nitelite();
+  }
 }
 
 int setMode(String command)
@@ -2447,6 +2472,70 @@ char* getMessageOfTheDay()
 }
 
 #endif
+
+void nitelite()
+{
+  static int lastSecond = 60;
+  int nowTime = Time.now();
+  int nowHour = Time.hour(nowTime);
+  nowHour %= 12;
+  if (nowHour == 0) nowHour = 12;
+  int nowMinute = Time.minute(nowTime);
+  int nowSecond = Time.second(nowTime);
+  if(lastSecond != nowSecond)
+  {
+    cls();
+    char nowBuffer[5] = "";
+    sprintf(nowBuffer, "%2d%02d", nowHour, nowMinute);
+    matrix.fillCircle(7, 6, 7, matrix.Color333(10, 10, 10)); // moon
+    matrix.fillCircle(9, 4, 7, matrix.Color333(0, 0, 0));    // cutout the crescent
+    matrix.drawPixel(16, 3, matrix.Color333(10, 10, 10));    // stars
+    matrix.drawPixel(30, 2, matrix.Color333(10, 10, 10));
+    matrix.drawPixel(19, 6, matrix.Color333(10, 10, 10));
+    matrix.drawPixel(21, 1, matrix.Color333(10, 10, 10));
+    vectorNumber(nowBuffer[0] - '0', 15, 11, matrix.Color333(10, 10, 10), 1, 1);
+    vectorNumber(nowBuffer[1] - '0', 19, 11, matrix.Color333(10, 10, 10), 1, 1);
+    vectorNumber(nowBuffer[2] - '0', 25, 11, matrix.Color333(10, 10, 10), 1, 1);
+    vectorNumber(nowBuffer[3] - '0', 29, 11, matrix.Color333(10, 10, 10), 1, 1);
+    matrix.drawPixel(23, 12, (nowSecond % 2)? matrix.Color333(5, 5, 5) : matrix.Color333(0, 0, 0));
+    matrix.drawPixel(23, 14, (nowSecond % 2)? matrix.Color333(5, 5, 5) : matrix.Color333(0, 0, 0));
+    matrix.swapBuffers(false);
+  }
+  lastSecond = nowSecond;
+}
+
+int timerEvaluate(const struct TimerObject on_time, const struct TimerObject off_time, const unsigned int currentTime)
+{
+  unsigned int start_time = tmConvert_t(Time.year(currentTime), Time.month(currentTime), Time.day(currentTime), on_time.hour, on_time.minute, 0);
+  unsigned int end_time = tmConvert_t(Time.year(currentTime), Time.month(currentTime), Time.day(currentTime), off_time.hour, off_time.minute, 0);
+
+  if (start_time < end_time)
+  {
+    if (start_time < currentTime && currentTime < end_time) return 1;
+    else return 0;
+  }
+  else if (start_time > end_time)
+  {
+    if (currentTime > start_time || currentTime < end_time) return 1;
+    else return 0;
+  }
+  else return 0;
+}
+
+inline time_t tmConvert_t(int YYYY, byte MM, byte DD, byte hh, byte mm, byte ss)  // inlined for speed
+{
+  struct tm t;
+  t.tm_year = YYYY-1900;
+  t.tm_mon = MM - 1;
+  t.tm_mday = DD;
+  t.tm_hour = hh;
+  t.tm_min = mm;
+  t.tm_sec = ss;
+  t.tm_isdst = 0;  // not used
+  time_t t_of_day = mktime(&t);
+  return t_of_day;
+}
+
 
 
 
