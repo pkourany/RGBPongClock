@@ -108,7 +108,17 @@ extern char* itoa(int a, char* buffer, unsigned char radix);
 
 int powerPillEaten = 0;
               
-/****************************************/
+/************* Using DST ?? ***************/
+
+// Select North America or Central Europe...
+
+#define DST_NORTH_AMERICA
+//#define DST_CENTRAL_EUROPE
+
+#if defined(DST_NORTH_AMERICA) || defined(DST_CENTRAL_EUROPE)
+int summerOffset = -4;
+int winterOffset = -5;
+#endif
 
 /********* USING SPECIAL MESSAGES **********/
 
@@ -284,6 +294,13 @@ void marquee();
 void nitelite();
 int timerEvaluate(const struct TimerObject on_time, const struct TimerObject off_time, const unsigned int currentTime);
 time_t tmConvert_t(int YYYY, byte MM, byte DD, byte hh, byte mm, byte ss);
+#ifdef DST_CENTRAL_EUROPE
+  bool IsDst(int day, int month, int dayOfWeek);
+#endif
+
+#ifdef DST_NORTH_AMERICA
+  bool IsDST(int dayOfMonth, int month, int dayOfWeek);
+#endif
 /*************************************/
 
 
@@ -359,6 +376,11 @@ void setup() {
 
 void loop()
 {
+	
+#if defined(DST_NORTH_AMERICA) || defined(DST_CENTRAL_EUROPE)
+  Time.zone(IsDST(Time.day(), Time.month(), Time.weekday()) ? summerOffset : winterOffset);
+#endif
+
   int Power_Mode = timerEvaluate(clock_on, clock_off, Time.now());  // comment out to skip night time mode
 
   if (Power_Mode == 1)
@@ -2535,6 +2557,51 @@ inline time_t tmConvert_t(int YYYY, byte MM, byte DD, byte hh, byte mm, byte ss)
   time_t t_of_day = mktime(&t);
   return t_of_day;
 }
+
+// North American Daylight Savings
+
+#ifdef DST_NORTH_AMERICA
+bool IsDST(int dayOfMonth, int month, int dayOfWeek)
+{
+  if (month < 3 || month > 11)
+  {
+    return false;
+  }
+  if (month > 3 && month < 11)
+  {
+    return true;
+  }
+  int previousSunday = dayOfMonth - (dayOfWeek - 1);
+  if (month == 3)
+  {
+    return previousSunday >= 8;
+  }
+  return previousSunday <= 0;
+}
+#endif
+
+#ifdef DST_CENTRAL_EUROPE
+bool IsDst(int day, int month, int dayOfWeek)
+{
+  if (month < 3 || month > 10)
+  {
+    return false;
+  }
+  if (month > 3 && month < 10)
+  {
+    return true;
+  }
+  int previousSunday = day - dayOfWeek;
+  if (month == 3)
+  {
+    return previousSunday >= 25;
+  }
+  if (month == 10) return previousSunday < 25;
+  {
+    return false;
+  }
+}
+#endif
 
 
 
